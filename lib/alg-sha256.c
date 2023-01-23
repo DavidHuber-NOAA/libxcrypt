@@ -238,7 +238,7 @@ _SHA256_Update(SHA256_CTX * ctx, const void * in, size_t len,
 		return;
 
 	/* Number of bytes left in the buffer from previous updates. */
-	r = (ctx->count >> 3) & 0x3f;
+	r = (uint32_t)((ctx->count >> 3) & 0x3f);
 
 	/* Update number of bits. */
 	ctx->count += (uint64_t)(len) << 3;
@@ -480,7 +480,7 @@ SHA256_Pad_Almost(SHA256_CTX * ctx, uint8_t len[static restrict 8],
 {
 	uint32_t r;
 
-	r = (ctx->count >> 3) & 0x3f;
+	r = (uint32_t)((ctx->count >> 3) & 0x3f);
 	if (r >= 56)
 		return -1;
 
@@ -536,7 +536,7 @@ PBKDF2_SHA256(const uint8_t * passwd, size_t passwdlen, const uint8_t * salt,
 		_HMAC_SHA256_Update(&hctx, salt, saltlen, tmp32);
 
 		/* Prepare ictx padding. */
-		oldcount = hctx.ictx.count & (0x3f << 3);
+		oldcount = (uint32_t)(hctx.ictx.count & (0x3f << 3));
 		_HMAC_SHA256_Update(&hctx, "\0\0\0", 4, tmp32);
 		if ((hctx.ictx.count & (0x3f << 3)) < oldcount ||
 		    SHA256_Pad_Almost(&hctx.ictx, u.tmp8, tmp32))

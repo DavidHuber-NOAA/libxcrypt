@@ -221,7 +221,7 @@ void MD5_Update(MD5_CTX *ctx, const void *data, size_t size)
 	unsigned long used, available;
 
 	saved_lo = ctx->lo;
-	if ((ctx->lo = (saved_lo + size) & 0x1fffffff) < saved_lo)
+	if ((ctx->lo = (MD5_u32plus)((saved_lo + size) & 0x1fffffff)) < saved_lo)
 		ctx->hi++;
 	ctx->hi += (MD5_u32plus) size >> 29;
 

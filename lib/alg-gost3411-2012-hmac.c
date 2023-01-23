@@ -45,12 +45,12 @@ gost_hmac256 (const uint8_t *k, size_t n, const uint8_t *t, size_t len,
   assert (n >= GOSTR3411_2012_L && n <= GOSTR3411_2012_B);
 
   for (i = 0; i < sizeof (gostbuf->pad); i++)
-    gostbuf->kstar[i] = i < n ? k[i] : 0;
+    gostbuf->kstar[i] = (unsigned char)(i < n ? k[i] : 0);
 
   GOST34112012Init (&gostbuf->ctx, GOSTR3411_2012_BITS);
 
   for (i = 0; i < sizeof (gostbuf->pad); i++)
-    gostbuf->pad[i] = gostbuf->kstar[i] ^ 0x36; /* ipad */
+    gostbuf->pad[i] = (unsigned char)(gostbuf->kstar[i] ^ 0x36); /* ipad */
 
   GOST34112012Update (&gostbuf->ctx, gostbuf->pad,
                       sizeof (gostbuf->pad));
@@ -60,7 +60,7 @@ gost_hmac256 (const uint8_t *k, size_t n, const uint8_t *t, size_t len,
   GOST34112012Init (&gostbuf->ctx, GOSTR3411_2012_BITS);
 
   for (i = 0; i < sizeof (gostbuf->pad); i++)
-    gostbuf->pad[i] = gostbuf->kstar[i] ^ 0x5c; /* opad */
+    gostbuf->pad[i] = (unsigned char)(gostbuf->kstar[i] ^ 0x5c); /* opad */
 
   GOST34112012Update (&gostbuf->ctx, gostbuf->pad,
                       sizeof (gostbuf->pad));

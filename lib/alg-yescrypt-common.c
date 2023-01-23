@@ -228,7 +228,7 @@ const uint8_t *decode64(uint8_t *dst, size_t *dstlen,
 		if (bits < 12) /* must have at least one full byte */
 			goto fail;
 		while (dstpos++ < *dstlen) {
-			*dst++ = value;
+			*dst++ = (uint8_t)(value);
 			value >>= 8;
 			bits -= 8;
 			if (bits < 8) { /* 2 or 4 */
@@ -291,7 +291,7 @@ static void yescrypt_sha256_cipher(unsigned char *data, size_t datalen,
 
 	f[32] = 0;
 	f[33] = sizeof(*key);
-	f[34] = datalen;
+	f[34] = (unsigned char)(datalen);
 
 	do {
 		SHA256_Init(&ctx);
@@ -300,7 +300,7 @@ static void yescrypt_sha256_cipher(unsigned char *data, size_t datalen,
 		SHA256_Update(&ctx, key, sizeof(*key));
 		SHA256_Update(&ctx, &data[which], halflen);
 		if (datalen & 1) {
-			f[0] = data[datalen - 1] & mask;
+			f[0] = (unsigned char)(data[datalen - 1] & mask);
 			SHA256_Update(&ctx, f, 1);
 		}
 		SHA256_Final(f, &ctx);
@@ -308,11 +308,11 @@ static void yescrypt_sha256_cipher(unsigned char *data, size_t datalen,
 		memxor(&data[which], f, halflen);
 		if (datalen & 1) {
 			mask ^= 0xff;
-			data[datalen - 1] ^= f[halflen] & mask;
+			data[datalen - 1] ^= (unsigned char)(f[halflen] & mask);
 		}
 		if (round == target)
 			break;
-		round += dir;
+		round += (unsigned char)(dir);
 	} while (1);
 
 	/* ctx is presumably zeroized by SHA256_Final() */
@@ -418,11 +418,11 @@ uint8_t *yescrypt_r(const yescrypt_shared_t *shared, yescrypt_local_t *local,
 	prefixlen = src - setting;
 
 	saltstr = src;
-	src = (uint8_t *)strrchr((char *)saltstr, '$');
+	src = (uint8_t *)strrchr((const char *)saltstr, '$');
 	if (src)
 		saltstrlen = src - saltstr;
 	else
-		saltstrlen = strlen((char *)saltstr);
+		saltstrlen = strlen((const char *)saltstr);
 
 	if (setting[1] == '7') {
 		salt = saltstr;
@@ -485,7 +485,7 @@ uint8_t *yescrypt(const uint8_t *passwd, const uint8_t *setting)
 	if (yescrypt_init_local(&local))
 		return NULL;
 	retval = yescrypt_r(NULL, &local,
-	    passwd, strlen((char *)passwd), setting, NULL, buf, sizeof(buf));
+	    passwd, strlen((const char *)passwd), setting, NULL, buf, sizeof(buf));
 	if (yescrypt_free_local(&local))
 		return NULL;
 	return retval;
